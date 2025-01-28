@@ -4,44 +4,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+    <title>CST325 Project1</title>
 
-<body onload="init()" style="text-align: center;">
-
-    <canvas id="gameCanvas" width="300" height="200" style="border:1px solid gray">
-
-    </canvas>
-    <br><br>
-    <button id="colorBtn">Change Spawn Color</button>
-    <br>
-    <p id="frameCount">Frame Count: 0</p>
-    <p id="rectangleCount">Rectangle Count: 0</p>
-    <br><br>
     <script>
-        var myCanvas = document.getElementById("gameCanvas");
+        var myCanvas;
+        var context;
         var sceneList = [];
         var currentFrameNumber = 0;
-        const canvasWidth = myCanvas.width;
-        const canvasHeight = myCanvas.height;
+        var canvasWidth;
+        var canvasHeight;
 
         function init() {
             console.log("Hello World!");
+            myCanvas = document.getElementById("gameCanvas");
+            context = myCanvas.getContext("2d");
+            canvasWidth = myCanvas.width;
+            canvasHeight = myCanvas.height;
 
-            const context = myCanvas.getContext("2d");
+            document.querySelector("#colorBtn").addEventListener("click",
+                function () {
+                    for (let i = 0; i < sceneList.length; i++) {
+                        var randR = Math.random() * 255;
+                        var randG = Math.random() * 255;
+                        var randB = Math.random() * 255;
+                        var Newcolor = `rgb(${randR}, ${randG}, ${randB})`;
 
-
-
-            const r1 = new Rectangle(10, 10, "red", 3);
-            const r2 = new Rectangle(15, 15, "green", 3);
-
-            sceneList.push(r1);
-            sceneList.push(r2);
+                        sceneList[i].color = Newcolor;
+                    }
+                }
+            )
 
             updateAndDraw();
         }
 
         function updateAndDraw() {
+            // clearing the canvas
+            context.clearRect(0, 0, canvasWidth, canvasHeight);
+
             var randR = Math.random() * 255;
             var randG = Math.random() * 255;
             var randB = Math.random() * 255;
@@ -49,16 +48,23 @@
             sceneList.push(new Rectangle(
                 Math.random() * canvasWidth,
                 Math.random() * canvasHeight,
-                color, 3
-            ))
+                color
+            ));
 
             for (let i = 0; i < sceneList.length; i++) {
+                // removing particles that are no longer on the canvas
+                if (sceneList[i].y > (canvasHeight + 100)) {
+                    sceneList.splice(i, 1);
+                }
+                // updating the canvas particles
+                sceneList[i].update();
                 sceneList[i].draw();
             }
 
             currentFrameNumber++;
-            // console.log(currentFrameNumber);
+            console.log(currentFrameNumber);
             updateStats();
+            // requesting the next frame
             requestAnimationFrame(updateAndDraw);
         }
 
@@ -71,23 +77,39 @@
         }
 
         class Rectangle {
-            constructor(x, y, color, velocity) {
+            constructor(x, y, color) {
                 this.x = x;
                 this.y = y;
+                this.width = 50;
+                this.height = 50;
                 this.color = color;
-                this.velocity = velocity;
-            }
+                this.velocity = { x: 0, y: 0 };
 
-            draw() {
-                const context = myCanvas.getContext("2d");
+                this.draw = function () {
+                    context.fillStyle = this.color;
+                    context.strokeRect(this.x, this.y, this.width, this.height);
+                    context.fillRect(this.x, this.y, this.width, this.height);
+                }
 
-                context.fillStyle = this.color;
-                context.strokeRect(this.x, this.y, 50, 50);
-                context.fillRect(this.x, this.y, 50, 50);
+                this.update = function () {
+                    this.velocity.y += 1;
+                    this.y = this.y + (this.velocity.y * 0.16);
+                }
             }
         }
-
     </script>
+
+</head>
+
+<body onload="init()" style="text-align: center;">
+
+    <canvas id="gameCanvas" width="300" height="200" style="border:1px solid gray"></canvas>
+    <br><br>
+    <button id="colorBtn">Change Spawn Color</button>
+    <br>
+    <p id="frameCount">Frame Count: 0</p>
+    <p id="rectangleCount">Rectangle Count: 0</p>
+    <br><br>
 </body>
 
 </html>

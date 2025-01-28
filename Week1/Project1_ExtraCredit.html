@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CST325 Project1 Extra Credit</title>
+    <script>
+        var myCanvas;
+        var context;
+        var sceneList = [];
+        var rgb = [225, 225, 225];
+        var isRaining = true;
+        var currentFrameNumber = 0;
+        var canvasWidth;
+        var canvasHeight;
+
+        function init() {
+            console.log("Hello World!");
+            myCanvas = document.getElementById("gameCanvas");
+            context = myCanvas.getContext("2d");
+            canvasWidth = myCanvas.width;
+            canvasHeight = myCanvas.height;
+
+            document.querySelector("#redBtn").addEventListener("click",
+                function () {
+                    if (rgb[0] < 255)
+                        rgb[0] += 10;
+                    if (rgb[1] > 0)
+                        rgb[1] -= 10;
+                    if (rgb[2] > 0)
+                        rgb[2] -= 10;
+
+                    for (let i = 0; i < rgb.length; i++) {
+                        console.log(rgb[0], + " " + rgb[1], + " " + rgb[2])
+                    }
+                }
+            );
+
+            document.querySelector("#greenBtn").addEventListener("click",
+                function () {
+                    if (rgb[1] < 255)
+                        rgb[1] += 10;
+                    if (rgb[0] > 0)
+                        rgb[0] -= 10;
+                    if (rgb[2] > 0)
+                        rgb[2] -= 10;
+
+                    for (let i = 0; i < rgb.length; i++) {
+                        console.log(rgb[0], + " " + rgb[1], + " " + rgb[2])
+                    }
+                }
+            );
+
+            document.querySelector("#blueBtn").addEventListener("click",
+                function () {
+                    if (rgb[2] < 255)
+                        rgb[2] += 10;
+                    if (rgb[1] > 0)
+                        rgb[1] -= 10;
+                    if (rgb[0] > 0)
+                        rgb[0] -= 10;
+
+                    for (let i = 0; i < rgb.length; i++) {
+                        console.log(rgb[0], + " " + rgb[1], + " " + rgb[2])
+                    }
+                }
+            );
+
+            document.querySelector("#snowBtn").addEventListener("click",
+                function () {
+                    for (let i = 0; i < sceneList.length; i++) {
+                        sceneList[i].velocityDelta = .2;
+                    }
+                    isRaining = false;
+                }
+            );
+
+            document.querySelector("#rainBtn").addEventListener("click",
+                function () {
+                    for (let i = 0; i < sceneList.length; i++) {
+                        sceneList[i].velocityDelta = 1;
+                    }
+                    isRaining = true;
+                }
+            );
+
+            updateAndDraw();
+        }
+
+        function updateAndDraw() {
+            context.clearRect(0, 0, canvasWidth, canvasHeight);
+            var color = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+
+            if (isRaining) {
+                sceneList.push(new Rectangle(
+                    Math.random() * canvasWidth,
+                    0,
+                    color, 1
+                ));
+            } else {
+                sceneList.push(new Rectangle(
+                    Math.random() * canvasWidth,
+                    0,
+                    color, .2
+                ));
+            }
+
+            for (let i = 0; i < sceneList.length; i++) {
+                sceneList[i].update();
+                sceneList[i].draw();
+                if (sceneList[i].y > (canvasHeight + 100)) {
+                    sceneList.splice(i, 1);
+                }
+            }
+
+            currentFrameNumber++;
+            //console.log(currentFrameNumber);
+
+            updateStats();
+            requestAnimationFrame(updateAndDraw);
+        }
+
+        function updateStats() {
+            var fc = document.getElementById("frameCount");
+            var rc = document.getElementById("rectangleCount");
+
+            fc.innerText = "Frame Count: " + currentFrameNumber;
+            rc.innerText = "Rectangle Count: " + sceneList.length;
+        }
+
+        class Rectangle {
+            constructor(x, y, color, velocityDelta) {
+                this.x = x;
+                this.y = y;
+                this.width = 50;
+                this.height = 50;
+                this.color = color;
+                this.velocityDelta = velocityDelta;
+                this.velocity = { x: 0, y: 0 };
+
+                this.draw = function () {
+                    context.fillStyle = this.color;
+                    context.strokeRect(this.x, this.y, this.width, this.height);
+                    context.fillRect(this.x, this.y, this.width, this.height);
+                }
+
+                this.update = function () {
+                    this.velocity.y += this.velocityDelta;
+                    if (this.width > 5)
+                        this.width -= 2;
+                    if (this.height > 5)
+                        this.height -= 2;
+
+                    this.y = this.y + (this.velocity.y * 0.16);
+                }
+            }
+        }
+    </script>
+
+</head>
+
+<body onload="init()" style="text-align: center;">
+
+    <canvas id="gameCanvas" width="300" height="200" style="border:1px solid gray"></canvas>
+    <br><br>
+    <button id="redBtn">Red</button>
+    <button id="greenBtn">Green</button>
+    <button id="blueBtn">Blue</button>
+    <br><br>
+    <button id="snowBtn">Snow</button>
+    <button id="rainBtn">Rain</button>
+
+    <br>
+    <p id="frameCount">Frame Count: 0</p>
+    <p id="rectangleCount">Rectangle Count: 0</p>
+    <br><br>
+</body>
+
+</html>
