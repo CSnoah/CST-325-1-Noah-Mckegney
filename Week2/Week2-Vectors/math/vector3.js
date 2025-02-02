@@ -16,6 +16,9 @@
 class Vector3 {
     constructor(x=0, y=0, z=0) { // initilize variables
         // todo - make sure to set a default value in case x, y, or z is not passed in
+
+        // create a new vector
+
         this.x = x;
         this.y = y;
         this.z = z;
@@ -25,6 +28,9 @@ class Vector3 {
     //----------------------------------------------------------------------------- 
     set(x, y, z) {
         // todo set 'this' object's values to those from x, y, and z
+
+        // set the values of a vectors coordinates
+
         this.x = x;
         this.y = y;
         this.z = z; 
@@ -33,12 +39,17 @@ class Vector3 {
 
     //----------------------------------------------------------------------------- 
     clone() {
+        // copy constructor
+
         return new Vector3(this.x, this.y, this.z);
     }
 
     //----------------------------------------------------------------------------- 
     copy(other) {
         // copy the values from other into 'this'
+
+        // set vector coordinates to the values of another vectors x,y,z points
+
         this.set(other.x, other.y, other.z);
         return this;
     }
@@ -47,6 +58,9 @@ class Vector3 {
     negate() {
         // multiply 'this' vector by -1
         // This SHOULD change the values of this.x, this.y, and this.z
+
+        // flips the direction of a vector maintaining the same magnitude and slope
+
         this.set(this.x*-1,this.y*-1,this.z*-1);
         return this;
     }
@@ -55,6 +69,9 @@ class Vector3 {
     add(v) {
         // todo - add v to 'this' vector
         // This SHOULD change the values of this.x, this.y, and this.z
+
+        // adds a vectors cordinate points by a scalar value
+
         this.set(this.x+v.x,this.y+v.y,this.z+v.z);
         return this;
     }
@@ -63,6 +80,9 @@ class Vector3 {
     subtract(v) {
         // todo - subtract v from 'this' vector
         // This SHOULD change the values of this.x, this.y, and this.z
+
+        // subtracts a vectors cordinate points by a scalar value
+
         this.set(this.x-v.x,this.y-v.y,this.z-v.z);
         return this;
     }
@@ -71,6 +91,9 @@ class Vector3 {
     multiplyScalar(scalar) {
         // multiply 'this' vector by "scalar"
         // This SHOULD change the values of this.x, this.y, and this.z
+
+        // multiplies a vectors cordinate points by a scalar value
+
         this.set(this.x*scalar,this.y*scalar,this.z*scalar);
         return this;
     }
@@ -79,25 +102,34 @@ class Vector3 {
     length() {
         // todo - return the magnitude (A.K.A. length) of 'this' vector
         // This should NOT change the values of this.x, this.y, and this.z
+        
+        // to get the magnitude or length of a vector you apply the distance formula
+        // sqrt( (x2-x1)^2 + (y2-y1)^2 + (z2-z1)^2 )
+        
         let x = this.x * this.x;
         let y = this.y * this.y;
         let z = this.z * this.z;
 
-        // let sqrtOf = x + y + z;
-        // if(sqrtOf < 2)
-        //     return sqrtOf;
+        // Trying to create my own sqrt function
+        /*
 
-        // // crating a method that does Math.sqrt(x + y + z);
-        // let primeFact2 = 0;
-        // let acuracy = 0.00001;
-        // for(; primeFact2 <= sqrtOf; primeFact2+=1)
-        // {
-        //     if((sqrtOf - (primeFact2*primeFact2)) <= acuracy)
-        //         break;
-        // }
-        // return primeFact2;
-        // console.log("prime2: " +primeFact2);
-        // console.log("sqrt: " + Math.sqrt(x+y+z));
+        let sqrtOf = x + y + z;
+        if(sqrtOf < 2)
+            return sqrtOf;
+
+        // crating a method that does Math.sqrt(x + y + z);
+        let primeFact2 = 0;
+        let acuracy = 0.00001;
+        for(; primeFact2 <= sqrtOf; primeFact2+=1)
+        {
+            if((sqrtOf - (primeFact2*primeFact2)) <= acuracy)
+                break;
+        }
+        return primeFact2;
+        console.log("prime2: " +primeFact2);
+        console.log("sqrt: " + Math.sqrt(x+y+z));
+
+        */
 
         return Math.sqrt(x+y+z) 
     }
@@ -110,6 +142,11 @@ class Vector3 {
         // There are many occasions where knowing the exact length is unnecessary 
         // and the square can be substituted instead (for performance reasons).  
         // This function should NOT have to take the square root of anything.
+
+        // This returns the calculation done in the distance formulas sqare root 
+        // but dos not apply the square root, and simply returns
+        // (x2-x1)^2 + (y2-y1)^2 + (z2-z1)^2
+
         let x = this.x * this.x;
         let y = this.y * this.y;
         let z = this.z * this.z;
@@ -121,10 +158,14 @@ class Vector3 {
     normalize() {
         // todo - Change the components of this vector so that its magnitude will equal 1.
         // This SHOULD change the values of this.x, this.y, and this.z
-        let scalingFactor = 1/this.length()
-        this.x *=scalingFactor;
-        this.y *=scalingFactor;
-        this.z *=scalingFactor;
+
+        // Mathematical caluclation
+        // To normalize a vector V you multiply its x,y,z cordinates by a scaling factor of
+        // 1/||V||
+
+        let scalingFactor = 1/this.length();
+        this.multiplyScalar(scalingFactor);
+        
         return this;
     }
 
@@ -132,6 +173,10 @@ class Vector3 {
     dot(other) {
         // todo - return the dot product between this vector and "other"
         // This should NOT change the values of this.x, this.y, and this.z
+
+        // this is a scaler value that is simply the sum of multiplying the x,y,z
+        // of both vecotors and then adding their products
+
         let dot = (this.x*other.x)+(this.y*other.y)+(this.z*other.z);
         //console.log(dot);
         return dot;
@@ -144,6 +189,17 @@ class Vector3 {
     //----------------------------------------------------------------------------- 
     rescale(newScale) {
         // todo - Change this vector's length to be newScale
+
+        // to increase a vector by a particular value the vector must first be normalized
+        // then in its normalized form you can multiply the vector by the amount you want
+        // to scale it by
+
+        // mathematical calculation
+        // normaized vector = W
+        // V = W*scalerValue
+
+        this.normalize();
+        this.multiplyScalar(newScale);
         return this;
     }
 
@@ -154,13 +210,34 @@ class Vector3 {
         }
         // todo - return the vector that goes from "fromPoint" to "toPoint"
         //        NOTE - "fromPoint" and "toPoint" should not be altered
+
+        // mathematical calculation
+        // find the componentForm from the two points
+        // V = <x2-x1,y2-y1,z2-z1>
+
+        let xDis = toPoint.x - fromPoint.x;
+        let yDis = toPoint.y - fromPoint.y;
+        let zDis = toPoint.z - fromPoint.z;
+        let componentForm = new Vector3(xDis, yDis, zDis);
+        return componentForm;
     }
 
     //----------------------------------------------------------------------------- 
     static angle(v1, v2) {
         // todo - calculate the angle in degrees between vectors v1 and v2. Do NOT
         //        change any values on the vectors themselves
-        return 0;
+
+        // mathematical calculation
+        // cos-1(( (dotproduct of v1,v2) / (||v||*||v2||) ) * 180/PI)
+
+        let mult = v1.dot(v2); 
+        let v = v1.length();
+        let w = v2.length();
+        
+        let thetaRadians = Math.acos(mult/(v*w));
+        let thetaDegrees = thetaRadians * (180/Math.PI);
+        //console.log(thetaDegrees);
+        return thetaDegrees;
     }
 
     //----------------------------------------------------------------------------- 
@@ -169,5 +246,15 @@ class Vector3 {
         //        but whose length is the projection of "vectorToProject" onto "otherVector"
         //        NOTE - "vectorToProject" and "otherVector" should NOT be altered (i.e. use clone)
         //        See "Vector Projection Slides" under "Extras" for more info.
+
+        // mathematical calculation
+        // projV = ( (dotproduct of V,U) / (||U||)^2 ) * U
+
+        let num = vectorToProject.dot(otherVector);
+        let den = (otherVector.length()*otherVector.length());
+        let proj = otherVector.clone();
+        proj.multiplyScalar(num/den);
+
+        return proj;
     }
 }
