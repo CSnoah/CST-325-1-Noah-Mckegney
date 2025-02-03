@@ -190,7 +190,7 @@ class Vector3 {
     rescale(newScale) {
         // todo - Change this vector's length to be newScale
 
-        // to increase a vector by a particular value the vector must first be normalized
+        // to change a vectors magnitude it must first be normalized
         // then in its normalized form you can multiply the vector by the amount you want
         // to scale it by
 
