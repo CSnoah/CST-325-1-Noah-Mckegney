@@ -192,6 +192,8 @@
                 const s6 = new Sphere();
                 const castResult = s6.raycast(r6);
 
+                console.log(castResult.hit);
+
                 assert(castResult.hit === false, "Invalid 1 Negative");
                 reporter.reportTestEnd(true);
             } catch (err) {

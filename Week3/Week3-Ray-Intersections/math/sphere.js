@@ -34,11 +34,6 @@ class Sphere {
             point: null,     // Vector3 of the intersection point
             normal: null,    // Normal vector at the intersection point
             distance: null,  // Distance from the ray origin to the intersection
-
-            // noahs tests
-            testa: null,
-            testb: null,
-            testc: null,
         };
 
         // TODO: Implement the ray-sphere intersection logic
@@ -48,8 +43,6 @@ class Sphere {
         a.normalize();
         a = a.dot(a);
 
-        result.testa = a;
-
         // // b = 2d(o-c)
         let bpt1 = ray.clone().direction;
         bpt1.multiplyScalar(2);
@@ -57,36 +50,39 @@ class Sphere {
         bpt2 = bpt2.subtract(this.center);
         let b = bpt1.dot(bpt2);
 
-        result.testb = b;
-
         // c = (o-c)(o-c) - 1
         let c = ray.clone().origin.subtract(this.center);
         c = c.dot(c) -1;
-
-        result.testc = c;
-
+         
         // testing if the ray hits the sphere
         let descriminant = b*b - 4*a*c;
         if (descriminant >= 0)
         {
-            result.hit = true;
+           result.hit = true;
 
-            // calculate alpha
+            // calculate alpha using quadratic formula
             let intersection1 = (-1*b + Math.sqrt(b*b - 4*a*c)) / 2*a;
             let intersection2 = (-1*b - Math.sqrt(b*b - 4*a*c)) / 2*a;
+            let isNegative1 = intersection1 < 0;
+            let isNegative2 = intersection2 < 0;
+
+            // will be the intersection we calculate our point with
             let intersection = null;
 
+            // checking if only one intersection exists
             let onlyIntersection = null;
             if(!Number.isNaN(intersection1) && Number.isNaN(intersection2))
                 onlyIntersection = (!Number.isNaN(intersection1) ? intersection1 : intersection2);
             if(Number.isNaN(intersection1) && !Number.isNaN(intersection2))
                 onlyIntersection = (!Number.isNaN(intersection1) ? intersection1 : intersection2);
+            if(intersection1 == intersection2)
+                onlyIntersection = intersection1; // doesnt matter which i assign
 
             // there are two intersections
             if(onlyIntersection == null)
             {
                 // find the smallest distance from the rays origin
-                let firstIntersection = Math.abs(intersection1 < Math.abs(intersection2) ? intersection1 : intersection2);
+                let firstIntersection = (Math.abs(intersection1) < Math.abs(intersection2) ? intersection1 : intersection2);
                 result.distance = firstIntersection; 
                 intersection = firstIntersection;
 
@@ -96,6 +92,8 @@ class Sphere {
                     result.hit = true;
                 else 
                     result.hit = false;
+
+                    console.log("yes " + result.hit + intersection);
             }
             else // there is only one intersection
             {
@@ -104,7 +102,7 @@ class Sphere {
 
                 // testing it the rays intersection point is infront of or behind the rays origin
                 // test if the one intersection is a negative intersection
-                result.hit = (onlyIntersection >=0 ? true : false);
+                // result.hit = (onlyIntersection >=0 ? true : false);
             }
 
             // calculate the intersection point using the calculated alpha value
@@ -116,14 +114,6 @@ class Sphere {
             // n = (x-h,y-k,z-m)
             result.normal = result.point.clone().subtract(this.center);
         }      
-        else 
-        {
-            result.hit = false;
-        }
-            
-
-        
-
 
         // Recommended steps:
         // ------------------
