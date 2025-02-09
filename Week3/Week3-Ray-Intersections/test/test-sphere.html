@@ -65,7 +65,7 @@
         function testValidIntersection() {
             reporter.reportTestStart("Valid Intersection");
 
-            //my tests noah
+            //tests noah
             // -------------
 
             // Test cases below (noah test)
@@ -99,6 +99,10 @@
                 const s3 = new Sphere(new Vector3(), 1);
                 const castResult = s3.raycast(r1);
 
+                // console.log("testValidIntersection: :");
+                // console.log(castResult.hit)
+                // console.log(castResult)
+
                 assert(castResult.hit === true, "Typical Valid Hit");
                 assert(vectorEqual(castResult.point, 0, 0, -1), "Typical Valid Hit Point");
                 assert(vectorEqual(castResult.normal, 0, 0, -1), "Typical Valid Hit Normal");
@@ -120,6 +124,12 @@
                 const r2 = new Ray(new Vector3(-3, 0, -10), new Vector3(0, 0, 1));
                 const castResult = s4.raycast(r2);
 
+                // console.log("testTangentIntersection: " + castResult.hit)
+                // console.log(castResult.testa); // no longer exist
+                // console.log(castResult.testb); // no longer exist
+                // console.log(castResult.testc); // no longer exist
+                // console.log(castResult)
+
                 assert(castResult.hit === true, "Tangent Valid Hit");
                 assert(vectorEqual(castResult.point, -3, 0, 0), "Tangent Valid Hit Point");
                 assert(vectorEqual(castResult.normal, -1, 0, 0), "Tangent Valid Hit Normal");
@@ -140,6 +150,8 @@
                 const r3 = new Ray(new Vector3(0, 0, -10), new Vector3(-1, 0, 1));
                 const castResult = s4.raycast(r3);
 
+                // console.log("testInvalidIntersection: " + castResult.hit)
+
                 assert(castResult.hit === false, "Typical Invalid");
                 reporter.reportTestEnd(true);
             } catch (err) {
@@ -158,6 +170,8 @@
                 const r4 = new Ray(new Vector3(-1, 0, 10), new Vector3(0, 0, 1));
                 const castResult = s4.raycast(r4);
 
+                // console.log("testNegativeIntersection: " + castResult.hit)
+
                 assert(castResult.hit === false, "Invalid 2 Negative");
                 reporter.reportTestEnd(true);
             } catch (err) {
@@ -174,6 +188,8 @@
                 const r5 = new Ray(new Vector3(), new Vector3(0, 0, 1));
                 const s5 = new Sphere();
                 const castResult = s5.raycast(r5);
+
+                // console.log("testInsideSphere: " + castResult.hit)
 
                 assert(castResult.hit === false, "Invalid - Inside Sphere");
                 reporter.reportTestEnd(true);
@@ -192,7 +208,7 @@
                 const s6 = new Sphere();
                 const castResult = s6.raycast(r6);
 
-                console.log(castResult.hit);
+                // console.log("testNegativeTangent: " + castResult.hit)
 
                 assert(castResult.hit === false, "Invalid 1 Negative");
                 reporter.reportTestEnd(true);
@@ -210,6 +226,8 @@
                 const r6 = new Ray(new Vector3(0, 0, 10), new Vector3(0, 0, -1));
                 const s6 = new Sphere(new Vector3(-1, 0, 0), 1);
                 const castResult = s6.raycast(r6);
+
+                // console.log("testNormal: " + castResult.hit)
 
                 assert(vectorEqual(castResult.normal, 1, 0, 0), "Normal Check");
                 reporter.reportTestEnd(true);
