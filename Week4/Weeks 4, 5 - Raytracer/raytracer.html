@@ -82,7 +82,7 @@
 			const pixelCoordinate = new Vector3(pixelX, pixelY, 0);
 
 			//let direction = new Vector3().fromTo(eyeCoordinate, pixelCoordinate); // = vector from the eye to the pixel
-			let direction = pixelCoordinate.clone().subtract(eyeCoordinate);
+			let direction = pixelCoordinate.clone().subtract(eyeCoordinate).normalize();
 
 			// Creates a ray from the eye toward the pixelCoordinate
 			let pixelRay = new Ray(eyeCoordinate, direction); // = new Ray(...);
@@ -100,6 +100,27 @@
 
 		// -----------------------------------------------------------------------------
 		function updateAndRender(timeElapsed) {
+
+			const lightPosition = new Vector3(1, 0, 0);
+
+			// ********************************* TESTING *********************************
+			// testing a single
+			// let shadeTest;
+
+			// testing valid intersection of sphere -- the sphere is somewhere in the middle --
+			// let xOffset = 30;
+			// const pixelRayTest = generateRayForPixel((pixelsAcross / 2) + xOffset, pixelsDown / 2);
+			// const sphereResultTest = sphere.raycast(pixelRayTest);
+			// const planeResultTest = plane.raycast(pixelRayTest);
+
+			// testing valid intersection of plane -- the sphere is somewhere in the middle --
+			// let xOffset = 50;
+			// const pixelRayTest = generateRayForPixel((pixelsAcross / 2) + xOffset, pixelsDown / 2);
+			// const sphereResultTest = sphere.raycast(pixelRayTest);
+			// const planeResultTest = plane.raycast(pixelRayTest);
+
+			// ********************************* TESTING *********************************
+
 			// Go through every pixel
 			// NOTE! You should only call setPixelColor once per pixel.  Otherwise, the
 			// last time you call it will be the color and overwrite previous calls.
@@ -110,13 +131,26 @@
 					const pixelRay = generateRayForPixel(xPixelIndex, yPixelIndex);
 
 					// test for todo #4
-					//var maxValue = Math.sin(Math.sqrt(2) / 4);
-					//setPixelColor(xPixelIndex, yPixelIndex, Math.abs(pixelRay.direction.x) / maxValue);
+					// var maxValue = Math.sin(Math.sqrt(2) / 4);
+					// setPixelColor(xPixelIndex, yPixelIndex, Math.abs(pixelRay.direction.x) / maxValue);
 
 					// See if the ray intersects the sphere or the plane (or every object in our scene)
 					// Uncomment when your sphere or plane code is ready
 					const sphereResult = sphere.raycast(pixelRay);
 					const planeResult = plane.raycast(pixelRay);
+
+					// const lightSource = new Vector3(1, 0, 0);
+					// const normalIntersection = sphereResult.distance;
+					//console.log(normalIntersection);
+					// const shade = lightSource.dot(normalIntersection);
+					// console.log(shade);
+
+					// if (sphereResult.hit)
+					// 	setPixelColor(xPixelIndex, yPixelIndex, 0.5);
+					// if (planeResult.hit)
+					// 	setPixelColor(xPixelIndex, yPixelIndex, 0.8);
+					// if (!sphereResult.hit && !planeResult.hit)
+					// 	setPixelColor(xPixelIndex, yPixelIndex, 0.1);
 
 					// determine which hit object is the closest (in case there is more than 1 hit)
 
@@ -127,19 +161,62 @@
 					// setPixelColor(xPixelIndex, yPixelIndex, 0.1); // dark gray
 					//}
 
-					const foreground = sphereResult.distance < planeResult.distance ? 0.8 : 0.5;
+					// when computing without shading
+					// const foreground = sphereResult.distance < planeResult.distance ? 0.8 : 0.5;
+
+					let pointToLight;
+					let normalIntersection;
+					let shade;
+
+					// if (sphereResult.hit) {
+					// 	pointToLight = new Vector3().fromTo(sphereResult.point, lightPosition).normalize();
+					// 	normalIntersection = sphereResult.normal;
+					// 	shade = pointToLight.clone().dot(normalIntersection);
+					// }
+
+					// if (planeResult.hit) {
+					// 	pointToLight = new Vector3().fromTo(planeResult.point, lightPosition);
+					// 	normalIntersection = planeResult.normal;
+					// 	shade = pointToLight.clone().dot(normalIntersection);
+					// }
 
 					if (sphereResult.hit && planeResult.hit) { // ray hit both
-						setPixelColor(xPixelIndex, yPixelIndex, foreground);
+
+						pointToLightPlane = new Vector3().fromTo(planeResult.point, lightPosition);
+						pointToLightSphere = new Vector3().fromTo(sphereResult.point, lightPosition);
+
+						if (pointToLightPlane.length > pointToLightSphere) {
+							pointToLight = new Vector3().fromTo(sphereResult.point, lightPosition).normalize();
+							normalIntersection = sphereResult.normal;
+							shade = pointToLight.clone().dot(normalIntersection);
+						} else {
+							pointToLight = new Vector3().fromTo(planeResult.point, lightPosition).normalize();
+							normalIntersection = planeResult.normal;
+							shade = pointToLight.clone().dot(normalIntersection);
+						}
+						shade = pointToLight.clone().dot(normalIntersection);
+						setPixelColor(xPixelIndex, yPixelIndex, shade);
 					} else if (sphereResult.hit) { // ray only hit sphere
-						setPixelColor(xPixelIndex, yPixelIndex, 0.8);
+						pointToLight = new Vector3().fromTo(sphereResult.point, lightPosition).normalize();
+						normalIntersection = sphereResult.normal;
+						shade = pointToLight.clone().dot(normalIntersection);
+						setPixelColor(xPixelIndex, yPixelIndex, shade);
 					} else if (planeResult.hit) { // ray only hit plane
-						setPixelColor(xPixelIndex, yPixelIndex, 0.5);
+						pointToLight = new Vector3().fromTo(planeResult.point, lightPosition).normalize();
+						normalIntersection = planeResult.normal;
+						shade = pointToLight.clone().dot(normalIntersection);
+						setPixelColor(xPixelIndex, yPixelIndex, shade);
 					} else { // ray hit neither ray or plane
 						setPixelColor(xPixelIndex, yPixelIndex, 0.1);
 					}
 				}
 			}
+
+			// testing a single dot on the sphere
+			// setPixelColor((pixelsAcross / 2) + xOffset, pixelsDown / 2, shadeTest);
+
+			// testing a single dot on plane
+			// setPixelColor((pixelsAcross / 2) + xOffset, pixelsDown / 2, shadeTest);
 
 			// Take our array of color data and give to the canvas to display
 			canvasContext.putImageData(imageData, 0, 0);
