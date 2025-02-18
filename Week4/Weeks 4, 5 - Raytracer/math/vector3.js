@@ -89,6 +89,12 @@ class Vector3 {
         return this.x * other.x + this.y * other.y + this.z * other.z;
     }
 
+    // added noah
+    cross(other)
+    {
+        return new Vector3(this.x*other.x,this.y*other.y,this.z*other.z);
+    }
+
     //----------------------------------------------------------------------------- 
     fromTo(fromPoint, toPoint) {
         if (!(fromPoint instanceof Vector3) || !(toPoint instanceof Vector3)) {

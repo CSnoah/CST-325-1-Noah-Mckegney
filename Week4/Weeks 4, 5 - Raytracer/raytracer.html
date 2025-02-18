@@ -13,6 +13,7 @@
 	<script src='math/ray.js'></script>
 	<script src='math/sphere.js'></script>
 	<script src='math/plane.js'></script>
+	<script src='math/triangle.js'></script>
 	<script>
 
 		// Canvas setup, don't need to anything in this section ************************
@@ -74,7 +75,6 @@
 
 		// end of raytracer setup ******************************************************
 
-
 		// -----------------------------------------------------------------------------
 		function generateRayForPixel(xPixelIndex, yPixelIndex) {
 			const pixelX = -1 + pixelHalfWidth + pixelWidth * xPixelIndex;
@@ -103,7 +103,7 @@
 
 			const lightPosition = new Vector3(1, 0, 0);
 
-			// ********************************* TESTING *********************************
+			// ********************************* TESTING single dot ********************************* below
 			// testing a single
 			// let shadeTest;
 
@@ -113,13 +113,13 @@
 			// const sphereResultTest = sphere.raycast(pixelRayTest);
 			// const planeResultTest = plane.raycast(pixelRayTest);
 
-			// testing valid intersection of plane -- the sphere is somewhere in the middle --
+			// testing valid intersection of plane 
 			// let xOffset = 50;
 			// const pixelRayTest = generateRayForPixel((pixelsAcross / 2) + xOffset, pixelsDown / 2);
 			// const sphereResultTest = sphere.raycast(pixelRayTest);
 			// const planeResultTest = plane.raycast(pixelRayTest);
 
-			// ********************************* TESTING *********************************
+			// ********************************* TESTING single dot ********************************* above
 
 			// Go through every pixel
 			// NOTE! You should only call setPixelColor once per pixel.  Otherwise, the
@@ -139,18 +139,7 @@
 					const sphereResult = sphere.raycast(pixelRay);
 					const planeResult = plane.raycast(pixelRay);
 
-					// const lightSource = new Vector3(1, 0, 0);
-					// const normalIntersection = sphereResult.distance;
-					//console.log(normalIntersection);
-					// const shade = lightSource.dot(normalIntersection);
-					// console.log(shade);
-
-					// if (sphereResult.hit)
-					// 	setPixelColor(xPixelIndex, yPixelIndex, 0.5);
-					// if (planeResult.hit)
-					// 	setPixelColor(xPixelIndex, yPixelIndex, 0.8);
-					// if (!sphereResult.hit && !planeResult.hit)
-					// 	setPixelColor(xPixelIndex, yPixelIndex, 0.1);
+					// ***************************************Program logic************************************************************** below
 
 					// determine which hit object is the closest (in case there is more than 1 hit)
 
@@ -161,24 +150,30 @@
 					// setPixelColor(xPixelIndex, yPixelIndex, 0.1); // dark gray
 					//}
 
-					// when computing without shading
+					// ***************************************Program logic************************************************************** above
+
+					// ********************************* shading withou computed lighting *********************************
 					// const foreground = sphereResult.distance < planeResult.distance ? 0.8 : 0.5;
 
 					let pointToLight;
 					let normalIntersection;
 					let shade;
 
+					// ********************************* TESTING single dot ********************************* below
+
 					// if (sphereResult.hit) {
-					// 	pointToLight = new Vector3().fromTo(sphereResult.point, lightPosition).normalize();
-					// 	normalIntersection = sphereResult.normal;
-					// 	shade = pointToLight.clone().dot(normalIntersection);
+					// 	pointToLight = new Vector3().fromTo(sphereResultTest.point, lightPosition).normalize();
+					// 	normalIntersection = sphereResultTest.normal;
+					// 	shadeTest = pointToLight.clone().dot(normalIntersection);
 					// }
 
 					// if (planeResult.hit) {
-					// 	pointToLight = new Vector3().fromTo(planeResult.point, lightPosition);
-					// 	normalIntersection = planeResult.normal;
-					// 	shade = pointToLight.clone().dot(normalIntersection);
+					// 	pointToLight = new Vector3().fromTo(planeResultTest.point, lightPosition).normalize();
+					// 	normalIntersection = planeResultTest.normal;
+					// 	shadeTest = pointToLight.clone().dot(normalIntersection);
 					// }
+
+					// ********************************* TESTING single dot ********************************* above
 
 					if (sphereResult.hit && planeResult.hit) { // ray hit both
 
@@ -212,11 +207,15 @@
 				}
 			}
 
+			// ********************************* TESTING single dot ********************************* below
+
 			// testing a single dot on the sphere
 			// setPixelColor((pixelsAcross / 2) + xOffset, pixelsDown / 2, shadeTest);
 
 			// testing a single dot on plane
 			// setPixelColor((pixelsAcross / 2) + xOffset, pixelsDown / 2, shadeTest);
+
+			// ********************************* TESTING single dot ********************************* above
 
 			// Take our array of color data and give to the canvas to display
 			canvasContext.putImageData(imageData, 0, 0);
