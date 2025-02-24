@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Raytracer</title>
+</head>
+
+<body>
+	<canvas id='my-canvas'></canvas>
+
+	<script src='math/vector3.js'></script>
+	<script src='math/ray.js'></script>
+	<script src='math/sphere.js'></script>
+	<script src='math/plane.js'></script>
+	<script>
+
+		// Canvas setup, don't need to anything in this section ************************
+		// Get a reference to the javascript object associated with the canvas
+		const canvas = document.getElementById('my-canvas');
+
+		// The canvas dimension we will set
+		const pixelsAcross = 256;  // pixels across
+		const pixelsDown = 256; // pixels down
+
+		// Set dimensions and pixel scale (generally you can ignore pixelScale, it won't affect your maths)
+		const pixelScale = 3;
+		canvas.width = pixelsAcross;
+		canvas.height = pixelsDown;
+		canvas.style.cssText = 'width:' + (pixelsAcross * pixelScale) + 'px;height:' + (pixelsDown * pixelScale) + 'px';
+
+		// Get the context from the canvas (in this case we just want 2d)
+		const canvasContext = canvas.getContext('2d');
+
+		// Get an array representing all of the pixels
+		// Arranged left to right, top to bottom
+		const imageData = canvasContext.getImageData(0, 0, pixelsAcross, pixelsDown);
+		// end canvas setup section *****************************************************
+
+
+		// Raytracer scene data setup
+		const fov = 45;   // if this changes, your code should still work
+		let fovRadians = fov * (Math.PI / 180); // todo -> convert degrees to radians
+
+		let pixelWidth = 2 / pixelsAcross; // todo -> what's the size of a pixel from left to right?
+		let pixelHalfWidth = pixelWidth / 2; // todo -> half of the pixel width
+
+		// How far away (scalar) the eye is from the image plane (see project guide for more info)
+		// let eyeDistance = Math.tan(180 - ((fov / 2) + 90)); // = todo -> hint: related to tangent and field of view
+		let eyeDistance = 1 / Math.tan(fovRadians / 2); // = todo -> hint: related to tangent and field of view
+		//console.log(180 - (((fov) / 2) + 90));
+		console.log(eyeDistance);
+		// -----------
+		// |         /
+		// |        /
+		// |       /
+		// | 45/2 /      <---- half angle
+		// |     /
+		// |    /
+		// |   /
+		// |  /
+		// | /
+
+		let eyeCoordinate = new Vector3(0, 0, eyeDistance); // Will be initialized after eyeDistance is set
+
+		// Define the scene objects here ------------------
+
+		// These are 3d definitions that match all of the math we did in class
+		// They also provide a "raycast" function that you can pass a ray to
+		// in order to find intersection between the ray and the object
+
+		let lightPosition = new Vector3(1, 0, 0);
+
+		let sphere = new Sphere(new Vector3(), 0.25); // todo = new Sphere(..., ...);
+		let plane = new Plane(new Vector3(0, 1, 0), new Vector3(0, -0.25, 0)); // todo = new Plane(..., ...);
+		let leftWall = new Plane(new Vector3(1, 0, 0), new Vector3(-1, 0, 0), new Vector3(255, 0, 0));
+		let rightWall = new Plane(new Vector3(-1, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 255, 0));
+		let ceiling = new Plane(new Vector3(0, -1, 0), new Vector3(0, 1, 0));
+		let backWall = new Plane(new Vector3(0, 0, 1), new Vector3(1, 0, -1));
+
+		let scene = [sphere, plane, leftWall, rightWall, ceiling, backWall];
+
+		// end of raytracer setup ******************************************************
+
+		// -----------------------------------------------------------------------------
+		function generateRayForPixel(xPixelIndex, yPixelIndex) {
+			const pixelX = -1 + pixelHalfWidth + pixelWidth * xPixelIndex;
+			const pixelY = 1 - pixelHalfWidth - pixelWidth * yPixelIndex;
+			const pixelCoordinate = new Vector3(pixelX, pixelY, 0);
+
+			//let direction = new Vector3().fromTo(eyeCoordinate, pixelCoordinate); // = vector from the eye to the pixel
+			let direction = pixelCoordinate.clone().subtract(eyeCoordinate).normalize();
+
+			// Creates a ray from the eye toward the pixelCoordinate
+			let pixelRay = new Ray(eyeCoordinate, direction); // = new Ray(...);
+			return pixelRay;
+		}
+
+		function setPixelColor(xPixelIndex, yPixelIndex, color) {
+			const index = (yPixelIndex * pixelsAcross + xPixelIndex) * 4; // 4 bytes per pixel
+			imageData.data[index + 0] = color.x * 255; // red channel
+			imageData.data[index + 1] = color.y * 255; // green channel
+			imageData.data[index + 2] = color.z * 255; // blue channel
+			imageData.data[index + 3] = 255;
+		}
+
+		function generateRayForPixelLight(from) {
+			let direction = new Vector3().fromTo(from, lightPosition).normalize();
+
+			// Creates a ray from the eye ray intersection point toward the light source
+			let pixelRay = new Ray(from, direction); // = new Ray(...);
+			return pixelRay;
+		}
+
+		// -----------------------------------------------------------------------------
+		function updateAndRender(timeElapsed) {
+			// making the light spin
+			var seconds = timeElapsed * 0.001;
+			let xLightPos = Math.cos(seconds) * 0.5;
+			let zLightPos = Math.sin(seconds) * 0.5;
+			lightPosition.set(xLightPos, 0, zLightPos);
+
+			// Go through every pixel
+			// NOTE! You should only call setPixelColor once per pixel.  Otherwise, the
+			// last time you call it will be the color and overwrite previous calls.
+			for (let yPixelIndex = 0; yPixelIndex < pixelsDown; ++yPixelIndex) {
+				for (let xPixelIndex = 0; xPixelIndex < pixelsAcross; ++xPixelIndex) {
+
+					// Uncomment this once you've coded generateRayForPixel
+					const pixelRay = generateRayForPixel(xPixelIndex, yPixelIndex);
+
+					// test for todo #4
+					// var maxValue = Math.sin(Math.sqrt(2) / 4);
+					// setPixelColor(xPixelIndex, yPixelIndex, Math.abs(pixelRay.direction.x) / maxValue);
+
+					// See if the ray intersects the sphere or the plane (or every object in our scene)
+					// Uncomment when your sphere or plane code is ready
+					const sphereResult = sphere.raycast(pixelRay);
+					const planeResult = plane.raycast(pixelRay);
+
+					let minDistance = Number.MAX_VALUE;
+					// foreground object and ray
+					let minCameraObject = null;
+					let minCameraRay = null;
+					for (let i = 0; i < scene.length; i++) {
+						let next = scene[i].raycast(pixelRay);
+						// determining the dominant foreground
+						if (next.hit) {
+							if (next.distance < minDistance) {
+								minDistance = next.distance;
+								minCameraRay = next;
+								minCameraObject = scene[i];
+							}
+						}
+					}
+
+					let pointToLight;
+					let normalIntersection;
+					let shade;
+					let inShadow = false;
+
+					if (minCameraRay) {
+						pointToLightPlane = generateRayForPixelLight(minCameraRay.point); // ray from camera intersection to light source
+						let pointToLightPlaneVector = new Vector3().fromTo(minCameraRay.point, lightPosition);
+						let minLightRay;
+						let minForegroundObject;
+						// look at all the object in the scene and determine if the ray from point to light make an intersection
+						for (let i = 0; i < scene.length; i++) {
+							// look at each scene object and determine if an intersection occurs
+							let next = scene[i].raycast(pointToLightPlane);
+							if (next.hit) {
+								// determining the dominant foreground between the ray starting at the camera intersection point to the light
+								if (next.distance < pointToLightPlaneVector.length()) {
+									minLightRay = next;
+									minForegroundObject = scene[i];
+									inShadow = true;
+								}
+							}
+						}
+					}
+
+					if (minCameraRay && minCameraObject) {
+						pointToLight = new Vector3().fromTo(minCameraRay.point, lightPosition).normalize();
+						normalIntersection = minCameraRay.normal;
+						shade = pointToLight.clone().dot(normalIntersection);
+						if (inShadow) {
+							shade = 0.0;
+						}
+						// setPixelColor(xPixelIndex, yPixelIndex, shade);
+						let colorShade = minCameraObject.color.clone().multiplyScalar(shade);
+						setPixelColor(xPixelIndex, yPixelIndex, colorShade);
+					}
+				}
+			}
+
+			// Take our array of color data and give to the canvas to display
+			canvasContext.putImageData(imageData, 0, 0);
+
+			// Let the browser know it should call this function again when it's time to render
+			requestAnimationFrame(updateAndRender);
+		}
+
+		// We are ready to render, let the browser know
+		requestAnimationFrame(updateAndRender);
+
+	</script>
+</body>
+
+</html>
