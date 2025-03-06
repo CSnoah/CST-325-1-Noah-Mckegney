@@ -433,6 +433,11 @@ class Matrix4 {
     //        and scale should NOT be modified.
 
     const trsMatrix = new Matrix4();
+
+    trsMatrix.multiply(translation);
+    trsMatrix.multiply(rotation);
+    trsMatrix.multiply(scale);
+    
     return trsMatrix;
   }
 
@@ -450,9 +455,17 @@ class Matrix4 {
 
     // Note: Do NOT change earthTransform but do use it, it already has the rotation and translation for the earth
 
-    const moonMatrix = new Matrix4();
+    const translate = new Matrix4();
+    translate.makeTranslation(offsetFromEarth);
+
+    const rotate = new Matrix4;
+    rotate.makeRotationZ(currentRotationAngle);
 
     // todo - combine all necessary matrices necessary to achieve the desired effect
+        const moonMatrix = new Matrix4();
+    moonMatrix.copy(earthTransform)
+    moonMatrix.multiply(rotate);
+    moonMatrix.multiply(translate)
 
     return moonMatrix;
   }

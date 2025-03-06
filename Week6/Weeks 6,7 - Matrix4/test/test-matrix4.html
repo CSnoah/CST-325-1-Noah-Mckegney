@@ -215,8 +215,8 @@
       var perspective = new Matrix4().makePerspective(90, 2, 1, 100);
 
       ///////////////////////////// TEST ////////////////////////////////////////////////////
-      let testP = new Matrix4().makePerspective(90, 1, 1, 2);
-      console.log(testP)
+      //let testP = new Matrix4().makePerspective(90, 1, 1, 2);
+      //console.log(testP)
 
       ///////////////////////////// TEST ////////////////////////////////////////////////////
 
@@ -629,6 +629,9 @@
 
       var p = new Vector3(1, 2, 4);
       var m1 = new Matrix4().createMoonMatrix(45, p, earthMatrix);
+
+      console.log(m1)
+
 
       v1 = 0.9999999403953552;
       v2 = -2.707106590270996;
