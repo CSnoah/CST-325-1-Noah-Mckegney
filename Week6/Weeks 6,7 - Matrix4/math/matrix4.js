@@ -98,83 +98,10 @@ class Matrix4 {
       if(row === 0)
         col++;
     }
-    // console.log(popResult);
     result.set(popResult[0],popResult[1],popResult[2],popResult[3]);
-    // console.log(result);
+
     return result;
   }
-
-  // // -------------------------------------------------------------------------
-
-  // getIndex(row, col) {
-  //   return row * 4 + col;
-  // }
-
-  // multiply(rightSideMatrix) {
-  //   // safety check
-  //   if (!(rightSideMatrix instanceof Matrix4)) {
-  //     console.error("Trying to multiply a 4x4 matrix with an invalid matrix value");
-  //   }
-
-  //   // todo - multiply 'this' * rightSideMatrix
-  //   // let lsM_col = 0;
-
-  //   let lsM_row = 0; // 
-  //   let rsM_row = 0; // 
-
-  //   let lsM_col = 0; // 
-  //   let rsM_col = 0;
-
-  //   let count = 0;
-  //   for(let i=0; i<this.elements.length;i++)
-  //   {
-  //     count += 1;
-  //     let sum = 0;
-  //     for(let k=0; k<4;k++)
-  //     {
-  //       sum += this.getElement(lsM_row, k)*rightSideMatrix.getElement(k, rsM_col);
-  //       lsM_col = (lsM_col + 1) % 4;
-  //       rsM_row = (rsM_row + 1) % 4;
-
-  //       // let next = this.getIndex(lsM_row, i);
-  //       // console.log(this.elements[next]);
-  //       // let next = k + lsM_row;
-  //       // console.log(this.elements[i])
-
-  //       // console.log(rightSideMatrix.getElement(k, rsM_col))
-  //       // let lhs = this.getIndex(lsM_row,k);
-  //       // let rhs_
-  //       // this.elements[i] += this.elements[i]*rightSideMatrix.getElement(k, rsM_col);
-  //       // rsM_row = (rsM_row + 1) % 4;
-  //       // if(rsM_row === 0)
-  //       //   rsM_col++; 
-  //     }
-  //     this.elements[i] = sum;
-  //     if(count >= 4) {
-  //       count = 0;
-        
-  //       lsM_row += 1;
-  //       console.log(lsM_row)
-  //     }
-  //     // lsM_row = (lsM_row + 1) % 4;
-  //     rsM_col = (rsM_col + 1) % 4;
-      
-
-
-  //     // if(i%4 == 0)
-  //     //   lsM_row++;
-  //   }
-  //   console.log("end")
-  // // }
-  // // console.log(this.elements)
-
-
-
-  //   return this;
-  // }
-
-
-
 
   multiply(rightSideMatrix) {
     // safety check
@@ -209,34 +136,6 @@ class Matrix4 {
 
     return this;
   }
-
-//   multiply(rightSideMatrix) {
-//     // Safety check
-//     if (!(rightSideMatrix instanceof Matrix4)) {
-//         console.error("Trying to multiply a 4x4 matrix with an invalid matrix value");
-//         return this;
-//     }
-
-//     let result = new Array(16).fill(0); // Store results separately
-
-//     // Matrix multiplication: this * rightSideMatrix
-//     for (let row = 0; row < 4; row++) {  // Loop over rows of 'this'
-//         for (let col = 0; col < 4; col++) {  // Loop over columns of 'rightSideMatrix'
-//             let sum = 0;
-//             for (let k = 0; k < 4; k++) {  // Perform dot product
-//                 let leftValue = this.elements[row * 4 + k];  // Get row element from 'this'
-//                 let rightValue = rightSideMatrix.getElement(k, col);  // Get column element from rightSideMatrix
-//                 sum += leftValue * rightValue;
-//             }
-//             result[row * 4 + col] = sum;  // Store computed value
-//         }
-//     }
-
-//     // console.log(this.elements)
-//     this.elements = result;  // Update matrix with new values
-//     return this;
-// }
-
 
   // -------------------------------------------------------------------------
   premultiply(leftSideMatrix) {
@@ -274,7 +173,7 @@ class Matrix4 {
     let r = degrees*(Math.PI/180);
 
     // shortcut - use in place of this.elements
-    const e = this.elements;
+    //const e = this.elements;
 
     // todo - set every element of this matrix to be a rotation around the x-axis
     let xrMatrix = new Matrix4();
@@ -297,7 +196,7 @@ class Matrix4 {
     let r = degrees*(Math.PI/180);
 
     // shortcut - use in place of this.elements
-    const e = this.elements;
+    //const e = this.elements;
 
     // todo - set every element of this matrix to be a rotation around the y-axis
     let yrMatrix = new Matrix4();
@@ -341,8 +240,6 @@ class Matrix4 {
     //      - If arg1 is a Vector3 or Vector4, use its components and ignore
     //        arg2 and arg3. O.W., treat arg1 as x, arg2 as y, and arg3 as z
 
-    // this.makeIdentity();
-
     if (arg1 instanceof Vector4) {
       this.elements = Float32Array.from([
         1, 0, 0, arg1.x,
@@ -379,14 +276,6 @@ class Matrix4 {
     let t = near*(Math.tan(fov/2));
     let r = t*aspect;
     let makePerspective = new Matrix4();
-
-    // makePerspective.elements = Float32Array.from([
-    //     (aspect*(1/Math.tan(fov/2))), 0, 0, 0,
-    //     0, (1/(Math.tan(fov/2))), 0, 0,
-    //     0, 0, (far/(far-near)), ((-far*near)/(far-near)),
-    //     0, 0, 1, 0
-    //   ]);
-
 
     makePerspective.elements = Float32Array.from([
       (1/r), 0, 0, 0,
