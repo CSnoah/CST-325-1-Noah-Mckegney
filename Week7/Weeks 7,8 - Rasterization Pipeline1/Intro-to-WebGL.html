@@ -89,7 +89,10 @@
 			createTriangleGeometry();
 
 			// uncomment when directed by the guide
-			// createLineGridGeometry();
+			createLineGridGeometry();
+
+			time.secondsElapsedSinceStart = performance.now() / 1000;
+			time.lastFrameTime = time.secondsElapsedSinceStart;
 
 			if (gl) {
 				updateAndRender();
@@ -103,6 +106,10 @@
 
 			try {
 				gl = canvas.getContext("webgl");
+
+				gl.enable(gl.DEPTH_TEST); // Enable depth test here
+				const depthTestEnabled = gl.getParameter(gl.DEPTH_TEST);
+				console.log(depthTestEnabled);
 
 				// Note: gl does not naturally have canvasWidth or canvasHeight
 				// We are attaching them to the object for convenience
@@ -238,16 +245,22 @@
 
 			const linePositions = [];
 
-			// specify the horizontal lines
+			const canvas = document.getElementById("webgl-canvas");
+
+			// specify the horizontal lines -- should be lateral
 			for (let i = -10; i <= 10; ++i) {
 				// add position for line start point (x value should be i)
 				// add position for line end point (x value should be i)
+				linePositions.push(i, 0, -10);
+				linePositions.push(i, 0, 10);
 			}
 
-			// specify the lateral lines
+			// specify the lateral lines -- should be horizontal
 			for (let i = -10; i <= 10; ++i) {
 				// add position for line start point (z value should be i)
 				// add position for line end point (z value should be i)
+				linePositions.push(-10, 0, i);
+				linePositions.push(10, 0, i);
 			}
 
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(linePositions), gl.STATIC_DRAW);
@@ -268,7 +281,7 @@
 		}
 
 		// -------------------------------------------------------------------------
-		let start = 0;
+		// let start = 0;
 
 		function updateAndRender() {
 			requestAnimationFrame(updateAndRender);
@@ -284,10 +297,14 @@
 			gl.clearColor(0.707, 0.707, 1, 1.0);
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-			start += .1;
-			renderTriangle(start);
-			// console.log(start)
-			// renderLines();
+			// start += .1;
+			const now = performance.now();
+			deltaTime = (now - time.lastFrameTime) / 1000;
+			time.lastFrameTime = now;
+			time.secondsElapsedSinceStart += deltaTime;
+
+			renderTriangle(time.secondsElapsedSinceStart);
+			renderLines();
 		}
 
 		// -------------------------------------------------------------------------
@@ -297,9 +314,6 @@
 			const degrees = secondsElapsedSinceStart * 60;
 
 			// todo #11 - make the triangle rotate
-			// if (triangleGeometry.worldmatrix == null) {
-			// 	triangleGeometry.worldmatrix = new Matrix4();
-			// }
 			triangleGeometry.worldMatrix = new Matrix4();
 			const rotate = triangleGeometry.worldMatrix.clone().makeRotationY(degrees);
 			const translate = triangleGeometry.worldMatrix.clone().makeTranslation(0, 0, -7);
@@ -308,12 +322,13 @@
 
 			// todo #6
 			// 1. update the triangle geometry "world matrix" here (used to place the triangle into world space)
+
 			// 2. reset the "view matrix" to identity
-			viewMatrix.makeIdentity(); // ----i added
-			viewMatrix.makeTranslation(0, 0, -7); // ----i added
+			viewMatrix.makeIdentity();
+			// viewMatrix.makeTranslation(0, 0, -7);
 			// 3. set the projection matrix using values from online guide
-			const canvas = document.getElementById("webgl-canvas"); // i added
-			projectionMatrix.makePerspective(45, canvas.width / canvas.height, 0.1, 1000); // ----i added
+			const canvas = document.getElementById("webgl-canvas");
+			projectionMatrix.makePerspective(45, canvas.width / canvas.height, 0.1, 1000);
 
 			gl.bindBuffer(gl.ARRAY_BUFFER, triangleGeometry.positionBuffer);
 			gl.vertexAttribPointer(
@@ -349,21 +364,52 @@
 			// todo #12
 
 			// todo update the triangle geometry world matrix here (used to place the triangle into world space)
+			lineGridGeometry.worldMatrix = new Matrix4();
+			const translate = lineGridGeometry.worldMatrix.clone().makeTranslation(0, -1, 0);
+			lineGridGeometry.worldMatrix.multiply(translate);
 			// todo set view matrix to identity
+			viewMatrix.makeIdentity();
+			// viewMatrix.makeTranslation(0, 0, 0);
 			// todo set the projection matrix using values from online guide
+			const canvas = document.getElementById("webgl-canvas");
+			projectionMatrix.makePerspective(45, canvas.width / canvas.height, 0.1, 1000);
 
 			// todo bind and map(gl.vertexAttribPointer) the buffers
+			gl.bindBuffer(gl.ARRAY_BUFFER, lineGridGeometry.positionBuffer);
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, lineGridGeometry.positionBuffer);
+			gl.vertexAttribPointer(
+				lineGridGeometry.shaderProgram.vertexPositionAttribute,
+				3,
+				gl.FLOAT,
+				gl.FALSE,
+				0, // stride - used for mixing data in a single buffer, ignore
+				0  // offset - used for mixing data in a single buffer, ignore
+			);
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, lineGridGeometry.colorBuffer);
+			gl.vertexAttribPointer(
+				lineGridGeometry.shaderProgram.vertexColorAttribute,
+				3,
+				gl.FLOAT,
+				gl.FALSE,
+				0, // stride - used for mixing data in a single buffer, ignore
+				0  // offset - used for mixing data in a single buffer, ignore
+			);
 
 			// todo - send matrices to shader
+			gl.uniformMatrix4fv(shaderProgram.worldMatrixUniform, false, lineGridGeometry.worldMatrix.clone().transpose().elements);
+			gl.uniformMatrix4fv(shaderProgram.viewMatrixUniform, false, viewMatrix.clone().transpose().elements);
+			gl.uniformMatrix4fv(shaderProgram.projectionMatrixUniform, false, projectionMatrix.clone().transpose().elements);
 
 			// --------------------------------------------
 			// below is done for you, uncomment when ready
 
 			// todo - you will need to calculate the time elapsed since the start of the program
 			//        and set up the uniform (like other uniforms) or the value below will never change
-			// gl.uniform1f(shaderProgram.timeUniform, time.secondsElapsedSinceStart);
+			gl.uniform1f(shaderProgram.timeUniform, time.secondsElapsedSinceStart);
 
-			// gl.drawArrays(gl.LINES, 0, lineGridGeometry.bufferItemCount);
+			gl.drawArrays(gl.LINES, 0, lineGridGeometry.bufferItemCount);
 		}
 
 	</script>
