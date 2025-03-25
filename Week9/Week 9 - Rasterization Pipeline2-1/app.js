@@ -94,6 +94,10 @@ function createScene() {
 }
 
 // -------------------------------------------------------------------------
+let colorChannels = [0,0,0];
+let curChannel =0;
+let counter = 0;
+
 function updateAndRender() {
     requestAnimationFrame(updateAndRender);
     
@@ -121,6 +125,23 @@ function updateAndRender() {
 
     // todo #9 - animate the color of there sphere
     // todo #10 - animate the color with non-grayscale values
+    let shade = Math.cos(time.secondsElapsedSinceStart);
+
+
+    shade = (shade + 1) / 2;
+    // console.log(shade)
+    // colorChannels[curChannel]=0;
+    // colorChannels[curChannel] = shade;
+    if(counter >=20){
+        colorChannels[curChannel]=1-shade;
+        curChannel = (curChannel +1)% colorChannels.length;    
+        counter = 0;
+    }
+    colorChannels[curChannel] = shade;
+    counter++;
+       
+    gl.uniform4f(colorProgram.uniforms.colorUniform, 
+        colorChannels[0], colorChannels[1], colorChannels[2], 1);
 
     // todo #3 - render the sphere
     sphereGeometry.render(camera, projectionMatrix, colorProgram);
