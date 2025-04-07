@@ -21,14 +21,14 @@ class OrbitCamera {
       // todo #1 - return the correct view matrix (you will need to use "clone")
 
       return this.cameraWorldMatrix.clone().inverse();
-
-
       //return new Matrix4();
     }
 
     // -----------------------------------------------------------------------------
     this.getPosition = function() {
       // todo #9 - return a vector4 of the camera's world position contained in its matrix
+      const e = this.cameraWorldMatrix.elements;
+      return new Vector4(e[3], e[7], e[11], e[15]);
     }
 
     // -------------------------------------------------------------------------

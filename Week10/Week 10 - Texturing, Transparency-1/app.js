@@ -129,12 +129,23 @@ function updateAndRender() {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     // todo #11 apply the painter's algorithm
+    const cameraPosition = camera.getPosition();
+
+    sphereGeometryList.sort((a, b) => {
+        const aDif = Math.abs(cameraPosition.z - a.getPosition().z);
+        const bDif = Math.abs(cameraPosition.z - b.getPosition().z);
+        
+        return bDif - aDif; 
+    });
+    //   console.log(sortedGeometryList);
+    //   debugger;
 
     // todo #7
     // uncomment when directed by guide
     for (let i = 0; i < sphereGeometryList.length; ++i) {
         sphereGeometryList[i].render(camera, projectionMatrix, textureShaderProgram);
     }
+    // debugger;
 
     // todo - disable blending
     gl.disable(gl.BLEND);

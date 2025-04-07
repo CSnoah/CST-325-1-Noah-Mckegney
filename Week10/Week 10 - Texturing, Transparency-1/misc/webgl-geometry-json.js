@@ -22,6 +22,10 @@ class WebGLGeometryJSON {
     // -----------------------------------------------------------------------------
     getPosition() {
         // todo #10 - return a vector4 of this object's world position contained in its matrix
+
+        // translation portion of the obects world matrix
+        const e = this.worldMatrix.elements;
+        return new Vector4(e[3], e[7], e[11], e[15]);
     }
 
     // -----------------------------------------------------------------------------
